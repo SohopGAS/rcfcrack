@@ -41,6 +41,11 @@ int simResolve(unsigned char * buffer, unsigned char * key, int keyByte) {
     ivkey[1] = iv[1];
     ivkey[2] = iv[2];
     j = 0;
+    ivkey[3] = key[0];
+    ivkey[4] = key[1];
+    ivkey[5] = key[2];
+    ivkey[6] = key[3];
+    ivkey[7] = key[4];
 
     /*printf("Buffer: %.2x %.2x %.2x %.2x %.2x\n\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4]);
     printf("\nivkey: ");
@@ -56,11 +61,11 @@ int simResolve(unsigned char * buffer, unsigned char * key, int keyByte) {
 
 
     for(i = 0; i < keyByte+3; i++) {
-        tempJ = j;
+        /*tempJ = j;
         tempS = s[i];
-        tempK = (int)ivkey[mod(i, 8)];
+        tempK = (int)ivkey[mod(i, 8)];  //*/
 
-        j = mod(j + s[i] + (int)ivkey[mod(i,8)], sSIZE);
+        j = mod(j + s[i] + (int)ivkey[mod((unsigned int)i,8)], sSIZE);
 
         tmp = s[j];
         s[j] = s[i];
@@ -89,13 +94,17 @@ int simResolve(unsigned char * buffer, unsigned char * key, int keyByte) {
 
 
 int main(void) {
-    printf("\n~ ~ ~ ~ ~ RC4 Key Cracker v1.03 ~ ~ ~ ~ ~\n\n");
+    printf("\n~ ~ ~ ~ ~ RC4 Key Cracker v1.04 ~ ~ ~ ~ ~\n\n");
 
     FILE *fp;
     int keyByte = 0;
     int counts[sSIZE];
     unsigned char buffer[5], key[5];
     int bestGuess, maxGuess;
+
+    for(int c = 0; c < 5; c++) {
+        key[c] = 0;
+    }
 
     for (keyByte = 0; keyByte < 5; keyByte++) {
 
@@ -128,8 +137,9 @@ int main(void) {
                 bestGuess = c;
             }
         }
-
-        printf("Best guess for key[%d] is 0x%.2x = %c\n", keyByte, bestGuess, bestGuess);
+        key[keyByte] = bestGuess;
+        printf("Best guess for key[%d] is 0x%.2x = %d = %c\n", keyByte, bestGuess, bestGuess, bestGuess);
+        fclose(fp);
     }
     printf("\nRC4 Key: %c%c%c%c%c\n\n", key[0],key[1],key[2],key[3],key[4]);
 }
